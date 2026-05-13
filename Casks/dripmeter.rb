@@ -12,15 +12,20 @@ cask "dripmeter" do
   app "DripMeter.app"
 
   # DripMeter is ad-hoc signed (no Apple Developer ID yet). Without
-  # this `xattr -cr`, the freshly-installed app stays quarantined and
-  # Gatekeeper blocks the first launch with "DripMeter cannot be
-  # opened because Apple cannot check it for malicious software".
-  # Clearing every extended attribute (`-c` clear, `-r` recurse) is
-  # the canonical workaround for ad-hoc signed open-source casks.
+  # stripping the quarantine xattr, Gatekeeper blocks the first
+  # launch with "Apple cannot check it for malicious software".
+  #
+  # Strip ONLY `com.apple.quarantine` ONLY on the bundle root —
+  # not `-cr` (recursive clear of everything), which crashes on
+  # SIP-protected internals like `Contents/_CodeSignature/` and
+  # `Contents/MacOS/<binary>`. The quarantine xattr is only ever
+  # placed on the top-level bundle dir, so this single call is
+  # sufficient.
   postflight do
     system_command "/usr/bin/xattr",
-                   args: ["-cr", "#{appdir}/DripMeter.app"],
-                   sudo: false
+                   args: ["-d", "com.apple.quarantine", "#{appdir}/DripMeter.app"],
+                   sudo: false,
+                   must_succeed: false
   end
 
   zap trash: [
@@ -33,9 +38,11 @@ cask "dripmeter" do
   caveats <<~EOS
     DripMeter is ad-hoc signed (no Apple Developer ID yet). The cask
     automatically strips the quarantine xattr on install, so the
-    first launch should just work. If macOS still complains, run:
+    first launch should just work. If macOS still complains, run
+    (no sudo needed):
 
-      xattr -cr /Applications/DripMeter.app && open /Applications/DripMeter.app
+      xattr -d com.apple.quarantine /Applications/DripMeter.app
+      open /Applications/DripMeter.app
 
     Pair with the DRIP CLI for live data:
       brew install drip-cli/drip/drip && drip init -g
