@@ -1,6 +1,6 @@
 cask "dripmeter" do
-  version "0.1.1"
-  sha256 "5e4de3e9fa1f0464a78bef167ec6f654c49c0dd89acdda12c0ce325b49ce6939"
+  version "0.1.2"
+  sha256 "9bd94921c407223839bad62fb106533cacccff9d3d22592a4420a652fec2599a"
 
   url "https://github.com/drip-cli/drip-meter-macos/releases/download/v#{version}/DripMeter-v#{version}.zip"
   name "DripMeter"
