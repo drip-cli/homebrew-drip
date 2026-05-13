@@ -37,12 +37,20 @@ cask "dripmeter" do
 
   caveats <<~EOS
     DripMeter is ad-hoc signed (no Apple Developer ID yet). The cask
-    automatically strips the quarantine xattr on install, so the
-    first launch should just work. If macOS still complains, run
-    (no sudo needed):
+    strips the quarantine xattr on install, but macOS Sequoia/Tahoe
+    (15.x / 26.x) still asks Gatekeeper to verify the app on first
+    launch and rejects it because there's no Developer ID.
 
-      xattr -d com.apple.quarantine /Applications/DripMeter.app
-      open /Applications/DripMeter.app
+    First launch — do this ONCE:
+      1. Open Finder → Applications.
+      2. Control-click (or right-click) DripMeter.app → Open.
+      3. In the "cannot verify" dialog, click Open Anyway.
+      macOS whitelists the app after that; double-clicking it works
+      normally from then on.
+
+    Alternative (System Settings):
+      Privacy & Security → scroll to the DripMeter notice →
+      Open Anyway.
 
     Pair with the DRIP CLI for live data:
       brew install drip-cli/drip/drip && drip init -g
